@@ -1,0 +1,5 @@
+# APIキーを無視
+/app/chatGPT/key.txt
+
+# .logを無視
+/app/log/project.log

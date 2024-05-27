@@ -1,0 +1,17 @@
+version: '3'
+services:
+  python:
+    restart: always
+    container_name: 'python'
+    build:
+      context: .
+      dockerfile: ./docker/python/Dockerfile
+    tty: true
+    volumes:
+      - ./app:/app
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_APP: app
+      FLASK_RUN_HOST: 0.0.0.0
+      FLASK_RUN_PORT: 5000

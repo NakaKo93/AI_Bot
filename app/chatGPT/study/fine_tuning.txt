@@ -1,0 +1,48 @@
+ファインチューニングは
+(推奨)gpt-3.5-turbo-0125, gpt-3.5-turbo-1106、(実験的)gpt-3.5-turbo-0613, babbage-002, davinci-002, gpt-4-0613
+
+ChatGPTにファインチューニングをする際、
+少なくとも10個、通常50 ～ 100個のトレーニングサンプルを用意する必要がある
+ドキュメント：https://platform.openai.com/docs/guides/fine-tuning/preparing-your-dataset
+
+・学習用データの入力(JSON)
+{
+    "messages": [
+        {"role": "system", "content": "役割、キャラクター"}, 
+        {"role": "user", "content": "使用者の質問１"}, 
+        {"role": "assistant", "content": "回答例１"},
+        {"role": "user", "content": "使用者の質問２"}, 
+        {"role": "assistant", "content": "回答例２"}
+    ]
+}
+
+
+・学習用データをアップロード(Python)
+from openai import OpenAI
+client = OpenAI()
+
+client.files.create(
+  file=open("ファイルパス", "rb"),
+  purpose="fine-tune"
+)
+
+・学習用データからモデルを作成(Python)
+client.fine_tuning.jobs.create(
+  training_file="file-abc123", 
+  model="gpt-3.5-turbo"
+)
+
+・結果の確認(Python)
+from datetime import datetime
+
+for i in range(len(job_finetune)):
+    timestamp = finetune_data[i].created_at
+    datetime = datetime.fromtimestamp(timestamp)
+    fine_tuned_id = finetune_data[i].id
+    status = openai.FineTune.retrieve(id=fine_tuned_id).status
+    model = openai.FineTune.retrieve(id=fine_tuned_id).fine_tuned_model
+    
+    print(f'Queued : {datetime}')
+    print(f'FineTune ID: {fine_tuned_id}')
+    print(f'Model: {model}')
+    print(f'Status: {status}\n')

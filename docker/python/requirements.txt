@@ -1,0 +1,4 @@
+openai
+numpy
+# GUI用のwebフレームワーク
+Flask==2.0.3

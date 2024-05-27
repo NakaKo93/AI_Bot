@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/app.css">
+    <script src="js/app.js"></script>
+
+    <title>Chatbot</title>
+</head>
+<body>
+    <div>
+        <h1>APIキーの更新</h1>
+        <form action="/chat-process" method="POST">
+            <input type="text" name="user-input" id="user-input" placeholder="変更するキーを入力してください..."></input>
+            <button type="submit">更新</button>
+        </form>
+    </div>
+    <div>
+        <h1>チャット</h1>
+        <div id="chat-box">
+            {% for chat in chat_history %} 
+                <li>{{ chat }}</li>
+            {% endfor %}
+        </div>
+        <form id='chat-form' action="/chat-process" method="POST">
+                <input type="text" name="user-input" id="user-input" placeholder="メッセージを入力してください..."></input>
+                <button type="submit">送信</button>
+        </form>
+    </div>
+</body>
+</html>

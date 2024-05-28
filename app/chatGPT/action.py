@@ -1,15 +1,16 @@
-from log.log_setting import getMyLogger
-from chat import load_api_key, get_chatbot_response
-from tkinter import *
+from .chat import ChatService
 
-class ChatBot:
-    def __init__(self):
+
+class ChatAction:
+    def __init__(self, getMyLogger):
         # loggerの設定
         self.logger = getMyLogger(__name__)
         # 会話履歴を保持するリスト
         self.chat_history = []
         # 全体のメッセージのリスト
         self.all_chat_history = []
+        # ChatServiceの読み込み
+        self.chatService_instance = ChatService(getMyLogger)
 
     def first_action(self):
         """
@@ -25,7 +26,7 @@ class ChatBot:
             self.all_chat_history.append("チャットボットを再起動しました")
 
         # APIキーの読み込み
-        key = load_api_key()
+        key = self.chatService_instance.load_api_key()
         if not key:
             self.all_chat_history.append("APIキーの読み込みに失敗しました。リダイレクトしてください。")
 
@@ -35,7 +36,7 @@ class ChatBot:
             self.all_chat_history.append("起動しました。終了を表すメッセージまたは、'reboot'の入力で再起動します。")
             # レスポンスの受け取り
             user_input = "はじめまして"
-            response_text, _ = get_chatbot_response(key, self.chat_history, user_input)
+            response_text, _ = self.chatService_instance.get_chatbot_response(key, self.chat_history, user_input)
             # 履歴の保存
             self.all_chat_history.append(f"bot : {response_text}")
             self.chat_history.append({"role": "user", "content": user_input})
@@ -49,7 +50,7 @@ class ChatBot:
         二回目以降の起動
         """
         # APIキーの読み込み
-        key = load_api_key()
+        key = self.chatService_instance.load_api_key()
         if not key:
             self.all_chat_history.append("APIキーの読み込みに失敗しました。リダイレクトしてください。")
             return self.all_chat_history
@@ -59,7 +60,7 @@ class ChatBot:
         # 履歴の保存
         self.all_chat_history.append(f"you : {user_input}")
         # レスポンスの受け取り
-        response_text, should_reboot = get_chatbot_response(key, self.chat_history, user_input)
+        response_text, should_reboot = self.chatService_instance.get_chatbot_response(key, self.chat_history, user_input)
 
         # 終了する場合
         if (user_input.lower() in ['reboot']) or (should_reboot):

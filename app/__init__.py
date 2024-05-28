@@ -2,4 +2,5 @@ from flask import Flask
 
 app = Flask(__name__)
 
-from views import routes
+# 直接 routes.py をインポート
+from . import routes

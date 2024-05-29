@@ -1,31 +1,66 @@
-from flask import request, jsonify, render_template
+from flask import request, jsonify, render_template, session
+import os
 from app import app
-from .chatGPT.action import ChatAction
-from .log.log_setting import getMyLogger
+import chatGPT
 
+# sessionに用いる暗号化キーの生成
+app.secret_key = os.urandom(24)
 
-chatAction_instance = ChatAction(getMyLogger)
-
+# インスタンスの作成
+chatAction_instance = chatGPT.action.ChatAction()
 
 @app.route('/')
 def index():
-    chat_history = chatAction_instance.first_action()
+    # 会話履歴のリスト
+    chat_history = []
+    # 全体のメッセージのリスト
+    all_chat_history = []
 
-    return render_template('index.html', chat_history = chat_history)
+    chat_history, all_chat_history = chatAction_instance.first_action()
+
+    # セッションに会話履歴を保存
+    session['chat_history'] = chat_history
+    session['all_chat_history'] = all_chat_history
+
+    return render_template('index.html', all_chat_history=all_chat_history)
 
 
 @app.route('/chat-process', methods=['POST'])
 def chat_process():
+    # ユーザーの質問を取得
     user_input = request.get_json()
-    user_input = user_input["user_input"]
-    chat_history = chatAction_instance.action(user_input)
+    user_input = user_input["user-input"]
+    # セッションから会話履歴を取得
+    chat_history = session.get('chat_history', [])
+    all_chat_history = session.get('all_chat_history', [])
+
+    chat_history, all_chat_history, reboot_status = chatAction_instance.action(user_input, chat_history, all_chat_history)
+    if reboot_status:
+        chat_history, all_chat_history = chatAction_instance.reboot_action(chat_history, all_chat_history)
+
+    # セッションに会話履歴を保存
+    session['chat_history'] = chat_history
+    session['all_chat_history'] = all_chat_history
     
-    return jsonify({"chat_history": chat_history})
+    return jsonify({"all_chat_history": all_chat_history})
 
 
 @app.route('/change-key', methods=['POST'])
 def change_key():
-    key = request.form['key']
-    message = chatAction_instance.change_key(key)
-    
-    return jsonify({"message": message})
+    # キーを取得
+    input_key = request.get_json()
+    input_key = input_key['key-input']
+    message = chatAction_instance.change_key(input_key)
+
+    # 会話履歴のリスト
+    chat_history = []
+    # 全体のメッセージのリスト
+    all_chat_history = []
+
+    chat_history, all_chat_history = chatAction_instance.first_action()
+
+    # セッションに会話履歴を保存
+    session['chat_history'] = chat_history
+    session['all_chat_history'] = all_chat_history
+
+    return jsonify({"message": message, "all_chat_history": all_chat_history})

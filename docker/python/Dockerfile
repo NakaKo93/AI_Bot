@@ -22,15 +22,7 @@ RUN pip install -r requirements.txt
 RUN pip install --upgrade pip
 RUN pip install --upgrade setuptools
 
-COPY ./ ./
-
-# ポートの公開
-EXPOSE 5000
-
-# 環境変数の設定
-ENV FLASK_APP=app
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_RUN_PORT=5000
+COPY . .
 
 # Flaskアプリケーションを実行
 CMD ["flask", "run"]
